@@ -5,6 +5,7 @@ on:
     types: [completed]
 
 permissions:
+  id-token: write
   contents: read
   actions: read
   pull-requests: write
@@ -42,6 +43,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             prompts/triage.md dosyasındaki talimatları uygula.
             Failed CI run ID: ${{ github.event.workflow_run.id }}

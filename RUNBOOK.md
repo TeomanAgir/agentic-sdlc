@@ -5,7 +5,8 @@
 | Secret / Kurulum | Nerede | Amaç | Expiry | Son kontrol |
 |---|---|---|---|---|
 | Claude GitHub App | Repo installation | claude-code-action'ın GitHub auth'u (comment, push, PR) | — (app installation, süresiz) | (kurulumda doldur) |
-| `ANTHROPIC_API_KEY` | Repository secret | claude-code-action'ın Anthropic API auth'u | (key oluştururken doldur) | (kurulumda doldur) |
+| `CLAUDE_CODE_OAUTH_TOKEN` | Repository secret | claude-code-action'ın Anthropic auth'u (abonelik; `/install-github-app` oluşturdu) | bilinmiyor — token hata verirse `/install-github-app`'i tekrar çalıştır | 2026-08-03 |
+| `ANTHROPIC_API_KEY` | Repository secret (opsiyonel) | Abonelik yerine API key kullanılacaksa alternatif auth | (key oluştururken doldur) | — (tanımlı değil) |
 | `AGENT_GITHUB_PAT` | Repository secret | Implementer'ın push/PR'ının ci + reviewer workflow'larını **tetikleyebilmesi** (varsayılan `github.token` ile yapılan push/PR, GitHub recursion koruması nedeniyle event tetiklemez) | (PAT oluştururken doldur — fine-grained, 90 gün önerilir) | (kurulumda doldur) |
 
 Kural: expiry'si olan her secret bu tabloya eklenir; expiry'den 1 hafta önce
@@ -14,8 +15,9 @@ yenile. Secret yenilenince "Son kontrol" sütununu güncelle.
 ## Kurulum
 
 1. Lokalde `claude` içinde `/install-github-app` çalıştır → GitHub App'i
-   `agentic-sdlc` repo'suna kur ve `ANTHROPIC_API_KEY` secret'ını ekle.
-2. Doğrulama: `gh secret list` çıktısında `ANTHROPIC_API_KEY` görünmeli;
+   `agentic-sdlc` repo'suna kurar; abonelik hesabında `CLAUDE_CODE_OAUTH_TOKEN`
+   secret'ını ekler (API hesabında `ANTHROPIC_API_KEY`). ✅ 2026-08-03 yapıldı.
+2. Doğrulama: `gh secret list` çıktısında ilgili secret görünmeli;
    repo Settings → GitHub Apps altında Claude app görünmeli.
 3. Fine-grained PAT oluştur (yalnızca bu repo; Contents: read/write,
    Pull requests: read/write, Issues: read/write) ve secret olarak ekle:

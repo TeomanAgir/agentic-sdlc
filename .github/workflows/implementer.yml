@@ -7,6 +7,7 @@ on:
 # (ci, reviewer) tetikleyebilmesi için gerekir. Varsayılan github.token ile
 # yapılan push/PR, GitHub'ın recursion koruması nedeniyle event tetiklemez.
 permissions:
+  id-token: write
   contents: write
   issues: write
   pull-requests: write
@@ -45,6 +46,7 @@ jobs:
           GH_TOKEN: ${{ secrets.AGENT_GITHUB_PAT || github.token }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             prompts/implementer.md dosyasındaki talimatları uygula.
             Issue: #${{ github.event.issue.number }}
