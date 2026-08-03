@@ -38,6 +38,23 @@ def test_list_notes():
     assert [n["title"] for n in resp.json()] == ["a", "b"]
 
 
+def test_list_notes_filters_by_title_case_insensitive():
+    client.post("/notes", json={"title": "Ilk Not"})
+    client.post("/notes", json={"title": "ikinci not"})
+    client.post("/notes", json={"title": "baska bir sey"})
+
+    resp = client.get("/notes", params={"q": "NOT"})
+    assert resp.status_code == 200
+    assert [n["title"] for n in resp.json()] == ["Ilk Not", "ikinci not"]
+
+
+def test_list_notes_with_no_match_returns_empty_list():
+    client.post("/notes", json={"title": "a"})
+    resp = client.get("/notes", params={"q": "zzz"})
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
 def test_get_missing_note_returns_404():
     resp = client.get("/notes/99")
     assert resp.status_code == 404
