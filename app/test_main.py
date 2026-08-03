@@ -50,6 +50,19 @@ def test_delete_note():
     assert client.get("/notes/1").status_code == 404
 
 
+def test_update_note():
+    client.post("/notes", json={"title": "eski", "body": "eski gövde"})
+    resp = client.put("/notes/1", json={"title": "yeni", "body": "yeni gövde"})
+    assert resp.status_code == 200
+    assert resp.json() == {"id": 1, "title": "yeni", "body": "yeni gövde"}
+    assert client.get("/notes/1").json()["title"] == "yeni"
+
+
+def test_update_missing_note_returns_404():
+    resp = client.put("/notes/99", json={"title": "x"})
+    assert resp.status_code == 404
+
+
 def test_delete_missing_note_returns_404():
     resp = client.delete("/notes/99")
     assert resp.status_code == 404
