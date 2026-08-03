@@ -25,6 +25,8 @@ jobs:
       - name: in-progress işaretle
         env:
           GH_TOKEN: ${{ github.token }}
+          # Bu adım checkout'tan önce koşar; gh repo'yu git dizininden çözemez.
+          GH_REPO: ${{ github.repository }}
           ISSUE: ${{ github.event.issue.number }}
         run: gh issue edit "$ISSUE" --add-label agent:in-progress
 
@@ -72,7 +74,8 @@ jobs:
           pr_count=$(gh pr list --head "agent/issue-$ISSUE" --state open --json number --jq 'length')
           if [ "$OUTCOME" = "success" ] && [ "$pr_count" -gt 0 ]; then
             gh issue edit "$ISSUE" \
-              --remove-label agent:plan-approved --remove-label agent:in-progress \
+              --remove-label agent:plan-ready --remove-label agent:plan-approved \
+              --remove-label agent:in-progress \
               --add-label agent:needs-review
           else
             gh issue edit "$ISSUE" \
