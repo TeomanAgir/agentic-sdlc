@@ -7,7 +7,7 @@
 | Claude GitHub App | Repo installation | claude-code-action'ın GitHub auth'u (comment, push, PR) | — (app installation, süresiz) | (kurulumda doldur) |
 | `CLAUDE_CODE_OAUTH_TOKEN` | Repository secret | claude-code-action'ın Anthropic auth'u (abonelik; `/install-github-app` oluşturdu) | bilinmiyor — token hata verirse `/install-github-app`'i tekrar çalıştır | 2026-08-03 |
 | `ANTHROPIC_API_KEY` | Repository secret (opsiyonel) | Abonelik yerine API key kullanılacaksa alternatif auth | (key oluştururken doldur) | — (tanımlı değil) |
-| `AGENT_GITHUB_PAT` | Repository secret | Implementer'ın push/PR'ının ci + reviewer workflow'larını **tetikleyebilmesi** (varsayılan `github.token` ile yapılan push/PR, GitHub recursion koruması nedeniyle event tetiklemez) | (PAT oluştururken doldur — fine-grained, 90 gün önerilir) | (kurulumda doldur) |
+| `AGENT_GITHUB_PAT` | Repository secret | Implementer'ın push/PR'ının ci + reviewer workflow'larını **tetikleyebilmesi** (varsayılan `github.token` ile yapılan push/PR, GitHub recursion koruması nedeniyle event tetiklemez) | ~2026-11-01 (90 günlük; GitHub ayarlarından teyit et, 1 hafta önce yenile) | 2026-08-03 — ilk token terminale düz metin girdiği için rotate edildi |
 
 Kural: expiry'si olan her secret bu tabloya eklenir; expiry'den 1 hafta önce
 yenile. Secret yenilenince "Son kontrol" sütununu güncelle.
