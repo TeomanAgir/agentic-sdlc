@@ -53,7 +53,7 @@ def get_note(note_id: int) -> Note:
 
 
 @app.put("/notes/{note_id}")
-def update_note(note_id, data: NoteIn):
+def update_note(note_id: int, data: NoteIn) -> Note:
     if note_id not in _notes:
         raise HTTPException(status_code=404, detail="note not found")
     note = Note(id=note_id, **data.model_dump())
