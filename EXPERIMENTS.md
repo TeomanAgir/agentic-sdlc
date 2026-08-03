@@ -53,4 +53,25 @@ kullanır:
   (contents: read olduğundan push riski yok); prompt'lara "gövdeyi /tmp'ye
   Write ile yaz, `--body-file` ile gönder" talimatı; turn limitleri
   15→25/20/20.
-- Sonuç / ders: (deneme 4 sonrası doldurulacak)
+- Sonuç / ders (deneme 4): ✅ Faz 1 kabul kriterlerinin tümü sağlandı.
+  Reviewer, PR #3'teki kasıtlı bug'ı (type hint eksikliği → path param `str`
+  kalıp her zaman 404) Blocker olarak dosya:satır referansıyla yakaladı;
+  test eksikliğini CLAUDE.md'ye bağladı. Bulgular uygulanınca ikinci review,
+  önceki bulguların düzeltildiğini madde madde teyit etti (context assembly
+  çalışıyor: eski comment'leri okuyor). Concurrency: art arda iki push'ta
+  ilk koşu `cancelled` oldu (run 30796863597). Transcript artifact'ı
+  yüklendi (30 gün retention). Agent'ın kod değiştirme girişimi yok.
+  Maliyet gözlemi: review başına ~$0.30.
+
+## 2026-08-03 — Faz 2: Planner Agent canlı testi
+
+- Beklenti: `agent:needs-plan` label'ı plan comment'i üretir, label
+  `agent:plan-ready`'ye geçer, alakasız label'lar tetiklemez.
+- Ne oldu: Issue #5 (GET /notes ?q= araması) label'la açıldı; planner tek
+  koşuda doğru formatta plan yazdı (kapsam / değişecek dosyalar / test
+  stratejisi / adımlar) ve label geçişi workflow step'iyle doğru işledi.
+  Negatif test: alakasız `docs` label'ı eklenince job guard'ı koşuyu
+  `skipped` bıraktı — agent tetiklenmedi.
+- Sonuç / ders: ✅ Faz 2 kabul kriterleri sağlandı. Write + `--body-file`
+  akışı ilk denemede çalıştı — Faz 1'deki izin dersi doğrudan taşındı,
+  planner hiç takılmadı.
