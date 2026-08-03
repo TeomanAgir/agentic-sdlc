@@ -34,9 +34,9 @@ def health() -> dict[str, str]:
 @app.post("/notes", status_code=201)
 def create_note(data: NoteIn) -> Note:
     global _next_id
+    _next_id += 1
     note = Note(id=_next_id, **data.model_dump())
     _notes[note.id] = note
-    _next_id += 1
     return note
 
 
