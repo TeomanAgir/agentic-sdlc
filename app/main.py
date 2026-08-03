@@ -41,8 +41,10 @@ def create_note(data: NoteIn) -> Note:
 
 
 @app.get("/notes")
-def list_notes() -> list[Note]:
-    return list(_notes.values())
+def list_notes(q: str | None = None) -> list[Note]:
+    if q is None:
+        return list(_notes.values())
+    return [note for note in _notes.values() if q.lower() in note.title.lower()]
 
 
 @app.get("/notes/{note_id}")
