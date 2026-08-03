@@ -75,3 +75,23 @@ kullanır:
 - Sonuç / ders: ✅ Faz 2 kabul kriterleri sağlandı. Write + `--body-file`
   akışı ilk denemede çalıştı — Faz 1'deki izin dersi doğrudan taşındı,
   planner hiç takılmadı.
+
+## 2026-08-03 — Faz 3: Implementer Agent canlı testi
+
+- Beklenti: `agent:plan-approved` → branch + testleri geçen PR +
+  `agent:needs-review`; PR'ın reviewer/ci'ı event'le tetiklemesi
+  (choreography kanıtı).
+- Ne oldu (deneme 1): checkout'tan önce koşan `gh issue edit` adımı repo
+  bağlamı bulamayıp düştü ("not a git repository"). Ders: checkout öncesi
+  gh çağrılarına `GH_REPO` env'i şart.
+- Ne oldu (deneme 2): ✅ Implementer planı uyguladı, testler yeşil, PR #8'i
+  `claude` app'i olarak açtı; label geçişi temiz (`agent:needs-review`).
+  **Choreography kanıtı**: PR #8, ci'ı (yeşil) ve reviewer'ı kendiliğinden
+  tetikledi — `AGENT_GITHUB_PAT`/app token sayesinde event zinciri koptu
+  kopmadı.
+- Yeni engel: reviewer, tetikleyen aktör bot (`claude[bot]`) olduğu için
+  koşmayı reddetti — action'ın güvenlik varsayılanı. Çözüm:
+  `allowed_bots: "claude"` input'u (reviewer + triage).
+- Sonuç / ders: agent→agent zincirlerinde bot aktör kısıtları da bir
+  "iletişim protokolü" parçası; her yeni hop ilk seferde bir güvenlik
+  varsayılanına çarpıyor ve bunlar tek tek açılmalı.
