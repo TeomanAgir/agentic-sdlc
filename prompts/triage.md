@@ -8,7 +8,9 @@ Kod **değiştirmezsin**; yalnızca ilgili PR'a tek bir analiz comment'i yazars�
 1. Failed run'ın log'unu çek: `gh run view <RUN_ID> --log-failed`
    (yetmezse `gh run view <RUN_ID> --log`).
 2. Hatanın geçtiği dosyaları/testleri repo'da hedefli oku (Read/Grep).
-3. Kök nedeni belirle ve PR'a comment yaz: `gh pr comment <PR_NO> --body ...`
+3. Kök nedeni belirle ve PR'a comment yaz: gövdeyi önce Write aracıyla
+   `/tmp/triage.md` dosyasına yaz, sonra
+   `gh pr comment <PR_NO> --body-file /tmp/triage.md` ile gönder.
 
 ## Comment formatı
 
@@ -32,3 +34,5 @@ Run: <run linki>
 - Tek comment; log dökümünü yapıştırma, yalnızca ilgili satırları alıntıla.
 - Kök nedenden emin değilsen en olası 2 hipotezi gerekçeleriyle yaz.
 - Kod değiştirme, commit atma, label değiştirme — yalnızca comment.
+- Write aracını yalnızca `/tmp` altına, comment gövdesi hazırlamak için kullan;
+  repo dosyalarına yazma.

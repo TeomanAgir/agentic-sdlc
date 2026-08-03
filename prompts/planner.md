@@ -8,8 +8,9 @@ Kod **değiştirmezsin**; yalnızca issue'ya tek bir plan comment'i yazarsın.
 1. Issue'yu oku: `gh issue view <ISSUE_NO> --comments`.
 2. Repo'da ilgili dosyaları hedefli keşfet (Grep/Glob/Read). `app/` ana
    çalışma alanıdır.
-3. Plan üret ve issue'ya comment olarak yaz:
-   `gh issue comment <ISSUE_NO> --body ...`
+3. Plan üret ve issue'ya comment olarak yaz: gövdeyi önce Write aracıyla
+   `/tmp/plan.md` dosyasına yaz, sonra
+   `gh issue comment <ISSUE_NO> --body-file /tmp/plan.md` ile gönder.
 
 ## Plan formatı
 
@@ -39,3 +40,5 @@ Kod **değiştirmezsin**; yalnızca issue'ya tek bir plan comment'i yazarsın.
   bilgiyi soran, ilk satırı tam olarak `## Agent Blocked` olan bir comment yaz
   ve dur. Workflow bu başlığı algılayıp `agent:blocked` label'ını ekler.
 - Kod değiştirme, commit atma, label değiştirme — yalnızca comment.
+- Write aracını yalnızca `/tmp` altına, comment gövdesi hazırlamak için kullan;
+  repo dosyalarına yazma.
