@@ -33,7 +33,7 @@ jobs:
             Issue: #${{ github.event.issue.number }}
           claude_args: |
             --max-turns 20
-            --allowedTools "Read,Grep,Glob,Bash(gh issue view:*),Bash(gh issue comment:*)"
+            --allowedTools "Read,Grep,Glob,Write,Bash(gh issue view:*),Bash(gh issue comment:*)"
 
       - name: Transcript'i artifact olarak yükle
         if: always() && steps.claude.outputs.execution_file != ''
