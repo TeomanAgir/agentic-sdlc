@@ -95,3 +95,22 @@ kullanır:
 - Sonuç / ders: agent→agent zincirlerinde bot aktör kısıtları da bir
   "iletişim protokolü" parçası; her yeni hop ilk seferde bir güvenlik
   varsayılanına çarpıyor ve bunlar tek tek açılmalı.
+- Kapanış: `allowed_bots: "claude"` merge edildikten sonra reviewer,
+  PR #8'i başarıyla review'ladı (Blocker/Major yok, 2 makul Minor).
+  ✅ Faz 3 kabul kriteri uçtan uca sağlandı: issue → plan → insan onayı →
+  implementer PR → reviewer, tamamen event zinciriyle.
+
+## 2026-08-03 — Faz 4: Triage Agent canlı testi
+
+- Beklenti: kasıtlı kırılan CI'da triage doğru kök nedeni işaret eden
+  comment yazar.
+- Ne oldu: PR #10'da `_next_id` artırma sırası kasıtlı bozuldu (lint
+  geçer, 2 test kırılır). CI fail → `workflow_run` triage'ı tetikledi;
+  triage tek koşuda tam isabet: artırma sırası → ilk not `id=2` →
+  hangi iki testin neden kırıldığı, dosya:satır referanslı. Commit
+  mesajından bunun kasıtlı bir test olduğunu bile tespit etti. Reviewer
+  da aynı bug'ı bağımsız olarak Blocker'ladı (savunma katmanları
+  örtüşüyor).
+- Sonuç / ders: ✅ Faz 4 kabul kriteri sağlandı. Deneyin 4 fazı da
+  tamamlandı; choreography deseni (GitHub-as-bus, label state machine,
+  merkezi orchestrator'sız) uçtan uca çalışır durumda.
