@@ -117,6 +117,17 @@ def test_patch_note_with_empty_body_returns_422():
     }
 
 
+def test_patch_note_with_null_field_returns_422():
+    client.post("/notes", json={"title": "eski", "body": "eski gövde"})
+    resp = client.patch("/notes/1", json={"title": None})
+    assert resp.status_code == 422
+    assert client.get("/notes/1").json() == {
+        "id": 1,
+        "title": "eski",
+        "body": "eski gövde",
+    }
+
+
 def test_patch_missing_note_returns_404():
     resp = client.patch("/notes/99", json={"title": "x"})
     assert resp.status_code == 404

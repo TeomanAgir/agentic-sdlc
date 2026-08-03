@@ -75,7 +75,11 @@ def patch_note(note_id: int, data: NotePatch) -> Note:
     updates = data.model_dump(exclude_unset=True)
     if not updates:
         raise HTTPException(status_code=422, detail="no fields to update")
-    note = _notes[note_id].model_copy(update=updates)
+    if any(value is None for value in updates.values()):
+        raise HTTPException(status_code=422, detail="fields cannot be null")
+    # model_copy(update=...) validasyon yapmaz; Note ile yeniden kurarak
+    # alan tiplerinin korunmasını garanti ediyoruz.
+    note = Note(**{**_notes[note_id].model_dump(), **updates})
     _notes[note_id] = note
     return note
 
