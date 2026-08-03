@@ -1,0 +1,60 @@
+name: triage-agent
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: triage-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  triage:
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: İlgili PR'ı bul
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          pr=$(gh pr list --head "$HEAD_BRANCH" --state open --json number --jq '.[0].number // empty')
+          echo "number=$pr" >> "$GITHUB_OUTPUT"
+
+      - id: claude
+        if: steps.pr.outputs.number != ''
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            prompts/triage.md dosyasındaki talimatları uygula.
+            Failed CI run ID: ${{ github.event.workflow_run.id }}
+            Run linki: ${{ github.event.workflow_run.html_url }}
+            PR: #${{ steps.pr.outputs.number }}
+          claude_args: |
+            --max-turns 15
+            --allowedTools "Read,Grep,Glob,Bash(gh run view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
+
+      - name: Transcript'i artifact olarak yükle
+        if: always() && steps.claude.outputs.execution_file != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: triage-transcript-${{ github.run_id }}
+          path: ${{ steps.claude.outputs.execution_file }}
+          retention-days: 30

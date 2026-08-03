@@ -1,0 +1,55 @@
+import pytest
+from fastapi.testclient import TestClient
+
+from app.main import app, reset_state
+
+client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _clean_state():
+    reset_state()
+    yield
+
+
+def test_health():
+    resp = client.get("/health")
+    assert resp.status_code == 200
+    assert resp.json() == {"status": "ok"}
+
+
+def test_create_and_get_note():
+    resp = client.post("/notes", json={"title": "ilk not", "body": "içerik"})
+    assert resp.status_code == 201
+    note = resp.json()
+    assert note["id"] == 1
+    assert note["title"] == "ilk not"
+
+    resp = client.get("/notes/1")
+    assert resp.status_code == 200
+    assert resp.json() == note
+
+
+def test_list_notes():
+    client.post("/notes", json={"title": "a"})
+    client.post("/notes", json={"title": "b"})
+    resp = client.get("/notes")
+    assert resp.status_code == 200
+    assert [n["title"] for n in resp.json()] == ["a", "b"]
+
+
+def test_get_missing_note_returns_404():
+    resp = client.get("/notes/99")
+    assert resp.status_code == 404
+
+
+def test_delete_note():
+    client.post("/notes", json={"title": "silinecek"})
+    resp = client.delete("/notes/1")
+    assert resp.status_code == 204
+    assert client.get("/notes/1").status_code == 404
+
+
+def test_delete_missing_note_returns_404():
+    resp = client.delete("/notes/99")
+    assert resp.status_code == 404

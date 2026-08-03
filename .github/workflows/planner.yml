@@ -1,0 +1,61 @@
+name: planner-agent
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: planner-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    if: github.event.label.name == 'agent:needs-plan'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: claude
+        uses: anthropics/claude-code-action@v1
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            prompts/planner.md dosyasındaki talimatları uygula.
+            Issue: #${{ github.event.issue.number }}
+          claude_args: |
+            --max-turns 20
+            --allowedTools "Read,Grep,Glob,Bash(gh issue view:*),Bash(gh issue comment:*)"
+
+      - name: Transcript'i artifact olarak yükle
+        if: always() && steps.claude.outputs.execution_file != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: planner-transcript-${{ github.run_id }}
+          path: ${{ steps.claude.outputs.execution_file }}
+          retention-days: 30
+
+      - name: Label geçişi (state machine)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          OUTCOME: ${{ steps.claude.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          last_comment=$(gh issue view "$ISSUE" --json comments --jq '.comments[-1].body' || echo "")
+          if [ "$OUTCOME" = "success" ] && ! printf '%s' "$last_comment" | head -1 | grep -qx '## Agent Blocked'; then
+            gh issue edit "$ISSUE" --remove-label agent:needs-plan --add-label agent:plan-ready
+          else
+            gh issue edit "$ISSUE" --remove-label agent:needs-plan --add-label agent:blocked
+            if [ "$OUTCOME" != "success" ]; then
+              gh issue comment "$ISSUE" --body "## Agent Blocked
+
+          Planner agent koşusu başarısız oldu. Log: $RUN_URL"
+            fi
+          fi
