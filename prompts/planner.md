@@ -42,3 +42,4 @@ Kod **değiştirmezsin**; yalnızca issue'ya tek bir plan comment'i yazarsın.
 - Kod değiştirme, commit atma, label değiştirme — yalnızca comment.
 - Write aracını yalnızca `/tmp` altına, comment gövdesi hazırlamak için kullan;
   repo dosyalarına yazma.
+- Bash komutlarını tek tek çalıştır; `&&`, `;`, pipe veya `>` yönlendirmesi içeren bileşik komutlar izin sistemine takılır ve turn harcar.

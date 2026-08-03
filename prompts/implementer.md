@@ -31,3 +31,4 @@ olan tek agent'sın; bu yetkiyi yalnızca aşağıdaki akış içinde kullanırs
 - `.github/workflows/`, `prompts/`, `CLAUDE.md`, `RUNBOOK.md` dosyalarına
   dokunma.
 - Label değiştirme — label geçişleri workflow'a aittir.
+- Bash komutlarını tek tek çalıştır; `&&`, `;`, pipe veya `>` yönlendirmesi içeren bileşik komutlar izin sistemine takılır ve turn harcar.

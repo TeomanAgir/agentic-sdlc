@@ -24,6 +24,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         continue-on-error: true
         env:
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -32,7 +33,7 @@ jobs:
             prompts/planner.md dosyasındaki talimatları uygula.
             Issue: #${{ github.event.issue.number }}
           claude_args: |
-            --max-turns 20
+            --max-turns 30
             --allowedTools "Read,Grep,Glob,Write,Bash(gh issue view:*),Bash(gh issue comment:*)"
 
       - name: Transcript'i artifact olarak yükle
@@ -49,15 +50,19 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
           OUTCOME: ${{ steps.claude.outcome }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        # İçerik-tabanlı geçiş: state'i süreç exit code'u değil, üretilen
+        # artefakt belirler. Plan comment'i varsa koşu max-turns'e takılmış
+        # olsa bile plan geçerlidir.
         run: |
           last_comment=$(gh issue view "$ISSUE" --json comments --jq '.comments[-1].body' || echo "")
-          if [ "$OUTCOME" = "success" ] && ! printf '%s' "$last_comment" | head -1 | grep -qx '## Agent Blocked'; then
+          first_line=$(printf '%s' "$last_comment" | head -1)
+          if [ "$first_line" = "## Agent Plan" ]; then
             gh issue edit "$ISSUE" --remove-label agent:needs-plan --add-label agent:plan-ready
           else
             gh issue edit "$ISSUE" --remove-label agent:needs-plan --add-label agent:blocked
-            if [ "$OUTCOME" != "success" ]; then
+            if [ "$first_line" != "## Agent Blocked" ]; then
               gh issue comment "$ISSUE" --body "## Agent Blocked
 
-          Planner agent koşusu başarısız oldu. Log: $RUN_URL"
+          Planner plan üretemedi (outcome: $OUTCOME). Log: $RUN_URL"
             fi
           fi

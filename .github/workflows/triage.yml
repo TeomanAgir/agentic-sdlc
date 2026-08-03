@@ -40,6 +40,7 @@ jobs:
         if: steps.pr.outputs.number != ''
         uses: anthropics/claude-code-action@v1
         env:
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
         with:
           allowed_bots: "claude"
