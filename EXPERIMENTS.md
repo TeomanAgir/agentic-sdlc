@@ -75,3 +75,42 @@ kullanır:
 - Sonuç / ders: ✅ Faz 2 kabul kriterleri sağlandı. Write + `--body-file`
   akışı ilk denemede çalıştı — Faz 1'deki izin dersi doğrudan taşındı,
   planner hiç takılmadı.
+
+## 2026-08-03 — Faz 3: Implementer Agent canlı testi
+
+- Beklenti: `agent:plan-approved` → branch + testleri geçen PR +
+  `agent:needs-review`; PR'ın reviewer/ci'ı event'le tetiklemesi
+  (choreography kanıtı).
+- Ne oldu (deneme 1): checkout'tan önce koşan `gh issue edit` adımı repo
+  bağlamı bulamayıp düştü ("not a git repository"). Ders: checkout öncesi
+  gh çağrılarına `GH_REPO` env'i şart.
+- Ne oldu (deneme 2): ✅ Implementer planı uyguladı, testler yeşil, PR #8'i
+  `claude` app'i olarak açtı; label geçişi temiz (`agent:needs-review`).
+  **Choreography kanıtı**: PR #8, ci'ı (yeşil) ve reviewer'ı kendiliğinden
+  tetikledi — `AGENT_GITHUB_PAT`/app token sayesinde event zinciri koptu
+  kopmadı.
+- Yeni engel: reviewer, tetikleyen aktör bot (`claude[bot]`) olduğu için
+  koşmayı reddetti — action'ın güvenlik varsayılanı. Çözüm:
+  `allowed_bots: "claude"` input'u (reviewer + triage).
+- Sonuç / ders: agent→agent zincirlerinde bot aktör kısıtları da bir
+  "iletişim protokolü" parçası; her yeni hop ilk seferde bir güvenlik
+  varsayılanına çarpıyor ve bunlar tek tek açılmalı.
+- Kapanış: `allowed_bots: "claude"` merge edildikten sonra reviewer,
+  PR #8'i başarıyla review'ladı (Blocker/Major yok, 2 makul Minor).
+  ✅ Faz 3 kabul kriteri uçtan uca sağlandı: issue → plan → insan onayı →
+  implementer PR → reviewer, tamamen event zinciriyle.
+
+## 2026-08-03 — Faz 4: Triage Agent canlı testi
+
+- Beklenti: kasıtlı kırılan CI'da triage doğru kök nedeni işaret eden
+  comment yazar.
+- Ne oldu: PR #10'da `_next_id` artırma sırası kasıtlı bozuldu (lint
+  geçer, 2 test kırılır). CI fail → `workflow_run` triage'ı tetikledi;
+  triage tek koşuda tam isabet: artırma sırası → ilk not `id=2` →
+  hangi iki testin neden kırıldığı, dosya:satır referanslı. Commit
+  mesajından bunun kasıtlı bir test olduğunu bile tespit etti. Reviewer
+  da aynı bug'ı bağımsız olarak Blocker'ladı (savunma katmanları
+  örtüşüyor).
+- Sonuç / ders: ✅ Faz 4 kabul kriteri sağlandı. Deneyin 4 fazı da
+  tamamlandı; choreography deseni (GitHub-as-bus, label state machine,
+  merkezi orchestrator'sız) uçtan uca çalışır durumda.
