@@ -114,3 +114,30 @@ kullanır:
 - Sonuç / ders: ✅ Faz 4 kabul kriteri sağlandı. Deneyin 4 fazı da
   tamamlandı; choreography deseni (GitHub-as-bus, label state machine,
   merkezi orchestrator'sız) uçtan uca çalışır durumda.
+
+## 2026-08-03 — İkinci uçtan uca tur (issue #12: PATCH endpoint'i)
+
+- Beklenti: tüm düzeltmeler sonrası akışın "temiz" koşusu.
+- Ne oldu (planner): plan başarıyla yazıldı ama gh'nin repo bağlamı
+  bulamaması + reddedilen tanı komutları max-turns'e yol açtı; label
+  adımı exit code'a bakıp geçerli planı blocked'a çevirdi. Düzeltme:
+  claude adımlarına `GH_REPO` env'i; planner label geçişi
+  **artefakt-tabanlı** yapıldı (son comment `## Agent Plan` ise
+  plan-ready — state'i süreç değil ürün belirler); max-turns 30;
+  prompt'lara bileşik komut uyarısı.
+- Ne oldu (implementer + reviewer): onay sonrası implementer tek seferde
+  temiz koştu → PR #14; reviewer + ci otomatik tetiklendi. Reviewer
+  **gerçek bir Blocker** yakaladı: `{"title": null}` gönderiminde
+  `exclude_unset` alanı "set edilmiş" sayıyor ve `model_copy(update=...)`
+  Pydantic v2'de validasyon yapmadığından bozuk state (`title=None`)
+  yazılabiliyordu. Planner planında bu durumu "Pydantic 422 verir" diye
+  geçiştirmişti — reviewer, planın yanlış varsayımını yakaladı:
+  katmanlar birbirini denetledi.
+- Fix (insan): null alanlara 422 + `Note(...)` ile validasyonlu yeniden
+  kurma + null testi → reviewer re-review: Blocker/Major yok, 2 Minor.
+  İnsan merge etti; issue otomatik kapandı.
+- Sonuç / ders: (1) Choreography'de state geçişleri artefakta bakmalı,
+  sürecin exit code'una değil — max-turns gibi kesintiler geçerli ürünü
+  gölgelememeli. (2) Reviewer'ın planın varsayımını çürütebilmesi,
+  çok-katmanlı agent hattının somut değeri. (3) `gh` tabanlı agent'larda
+  `GH_REPO` env'i baştan verilmeli — bağlam araması sessizce turn yakıyor.
