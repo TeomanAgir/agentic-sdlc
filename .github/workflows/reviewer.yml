@@ -4,6 +4,7 @@ on:
     types: [opened, synchronize]
 
 permissions:
+  id-token: write
   contents: read
   pull-requests: write
   issues: write
@@ -27,12 +28,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             prompts/reviewer.md dosyasındaki talimatları uygula.
             PR: #${{ github.event.pull_request.number }}
           claude_args: |
-            --max-turns 15
-            --allowedTools "Read,Grep,Glob,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
+            --max-turns 25
+            --allowedTools "Read,Grep,Glob,Write,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
 
       - name: Transcript'i artifact olarak yükle
         if: always() && steps.claude.outputs.execution_file != ''

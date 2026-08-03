@@ -5,6 +5,7 @@ on:
     types: [completed]
 
 permissions:
+  id-token: write
   contents: read
   actions: read
   pull-requests: write
@@ -42,14 +43,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             prompts/triage.md dosyasındaki talimatları uygula.
             Failed CI run ID: ${{ github.event.workflow_run.id }}
             Run linki: ${{ github.event.workflow_run.html_url }}
             PR: #${{ steps.pr.outputs.number }}
           claude_args: |
-            --max-turns 15
-            --allowedTools "Read,Grep,Glob,Bash(gh run view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
+            --max-turns 20
+            --allowedTools "Read,Grep,Glob,Write,Bash(gh run view:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
 
       - name: Transcript'i artifact olarak yükle
         if: always() && steps.claude.outputs.execution_file != ''
