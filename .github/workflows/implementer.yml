@@ -7,6 +7,7 @@ on:
 # (ci, reviewer) tetikleyebilmesi için gerekir. Varsayılan github.token ile
 # yapılan push/PR, GitHub'ın recursion koruması nedeniyle event tetiklemez.
 permissions:
+  id-token: write
   contents: write
   issues: write
   pull-requests: write

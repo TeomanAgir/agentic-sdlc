@@ -5,6 +5,7 @@ on:
     types: [completed]
 
 permissions:
+  id-token: write
   contents: read
   actions: read
   pull-requests: write
