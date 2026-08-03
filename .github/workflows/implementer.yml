@@ -45,6 +45,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         continue-on-error: true
         env:
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.AGENT_GITHUB_PAT || github.token }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
