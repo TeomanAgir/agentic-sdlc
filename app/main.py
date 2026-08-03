@@ -15,6 +15,11 @@ class Note(NoteIn):
     id: int
 
 
+class NotePatch(BaseModel):
+    title: str | None = None
+    body: str | None = None
+
+
 _notes: dict[int, Note] = {}
 _next_id = 1
 
@@ -59,6 +64,18 @@ def update_note(note_id: int, data: NoteIn) -> Note:
     if note_id not in _notes:
         raise HTTPException(status_code=404, detail="note not found")
     note = Note(id=note_id, **data.model_dump())
+    _notes[note_id] = note
+    return note
+
+
+@app.patch("/notes/{note_id}")
+def patch_note(note_id: int, data: NotePatch) -> Note:
+    if note_id not in _notes:
+        raise HTTPException(status_code=404, detail="note not found")
+    updates = data.model_dump(exclude_unset=True)
+    if not updates:
+        raise HTTPException(status_code=422, detail="no fields to update")
+    note = _notes[note_id].model_copy(update=updates)
     _notes[note_id] = note
     return note
 

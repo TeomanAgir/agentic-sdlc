@@ -83,3 +83,40 @@ def test_update_missing_note_returns_404():
 def test_delete_missing_note_returns_404():
     resp = client.delete("/notes/99")
     assert resp.status_code == 404
+
+
+def test_patch_note_updates_only_title():
+    client.post("/notes", json={"title": "eski", "body": "eski gövde"})
+    resp = client.patch("/notes/1", json={"title": "yeni"})
+    assert resp.status_code == 200
+    assert resp.json() == {"id": 1, "title": "yeni", "body": "eski gövde"}
+
+
+def test_patch_note_updates_only_body():
+    client.post("/notes", json={"title": "eski", "body": "eski gövde"})
+    resp = client.patch("/notes/1", json={"body": "yeni gövde"})
+    assert resp.status_code == 200
+    assert resp.json() == {"id": 1, "title": "eski", "body": "yeni gövde"}
+
+
+def test_patch_note_updates_both_fields():
+    client.post("/notes", json={"title": "eski", "body": "eski gövde"})
+    resp = client.patch("/notes/1", json={"title": "yeni", "body": "yeni gövde"})
+    assert resp.status_code == 200
+    assert resp.json() == {"id": 1, "title": "yeni", "body": "yeni gövde"}
+
+
+def test_patch_note_with_empty_body_returns_422():
+    client.post("/notes", json={"title": "eski", "body": "eski gövde"})
+    resp = client.patch("/notes/1", json={})
+    assert resp.status_code == 422
+    assert client.get("/notes/1").json() == {
+        "id": 1,
+        "title": "eski",
+        "body": "eski gövde",
+    }
+
+
+def test_patch_missing_note_returns_404():
+    resp = client.patch("/notes/99", json={"title": "x"})
+    assert resp.status_code == 404
